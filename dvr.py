@@ -42,7 +42,7 @@ def download_and_extract_db(drive_path: Path, dvr_model: str) -> None:
     week_number = now.strftime("%V")
 
     url = f"https://www.inspector-update.me/SOFT/DB/{dvr_model}DB_{week_number}.zip"
-    response = requests.get(url)
+    response = requests.get(url, timeout=100)
 
     with open('temp.zip', 'wb') as f:
         f.write(response.content)
