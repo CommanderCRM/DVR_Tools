@@ -6,6 +6,12 @@
 * Deleting all files inside EVENT folder
 * Downloading and unpacking most recent DB update
 
+## Logging
+
+There are some informational messages by default. To increase logging verbosity, set ```LOG_LEVEL``` environment variable to ```DEBUG```.
+
+## Help
+
 ```text
 usage: dvr.py [-h] [--drive DRIVE] [--delete_events] [--update_db] [--dvr_model DVR_MODEL]
 
