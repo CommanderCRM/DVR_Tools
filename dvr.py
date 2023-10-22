@@ -37,7 +37,7 @@ def get_drive_path(drive_letter: str) -> Path:
 def delete_event_files(drive_path: Path):
     """Delete all files in EVENT"""
 
-    event_folder = drive_path / 'EVENT'
+    event_folder = drive_path / 'EVENT' / '100MEDIA'
     if event_folder.exists() and event_folder.is_dir():
         logging.info('Removing all files in %s', event_folder)
         for file in event_folder.iterdir():
