@@ -8,19 +8,20 @@
 
 ## Logging
 
-There are some informational messages by default. To increase logging verbosity, set ```LOG_LEVEL``` environment variable to ```DEBUG```.
+There are some informational messages by default. To increase logging verbosity, add ```--debug``` argument.
+Example: ```python3 dvr.py --debug```
 
 ## Help
 
 ```text
-usage: dvr.py [-h] [--drive DRIVE] [--delete_events] [--update_db] [--dvr_model DVR_MODEL]
+Usage: dvr.py main [OPTIONS]
 
-Tools for working with DVR memory card
+  Tools for working with DVR
 
-options:
-  -h, --help            show this help message and exit
-  --drive DRIVE         Drive letter
-  --delete_events       Delete all files in EVENT
-  --update_db           Download DB update
-  --dvr_model DVR_MODEL Inspector DVR model
+Options:
+  --drive TEXT      Drive letter
+  --delete_events   Delete all files in EVENT
+  --update_db       Download DB update
+  --dvr_model TEXT  Inspector DVR model
+  --help            Show this message and exit.
 ```

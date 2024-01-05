@@ -1,32 +1,35 @@
-import argparse
-import sys
 from pathlib import Path
 from datetime import datetime
 import zipfile
 import os
 import logging
 import requests
+import click
 
-if os.environ.get('LOG_LEVEL') == 'DEBUG':
-    logging.basicConfig(level=logging.DEBUG)
-else:
-    logging.basicConfig(level=logging.INFO)
+@click.group()
+@click.option('--debug', is_flag=True, default=False)
+def cli(debug):
+    if debug:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
 
-def parse_arguments() -> argparse.Namespace:
-    """Arguments parser"""
+@cli.command()
+@click.option('--drive', type=str, help='Drive letter')
+@click.option('--delete_events', is_flag=True, help='Delete all files in EVENT')
+@click.option('--update_db', is_flag=True, help='Download DB update')
+@click.option('--dvr_model', type=str, help='Inspector DVR model')
+def main(drive, delete_events, update_db, dvr_model):
+    """Tools for working with DVR"""
+    drive_path = get_drive_path(drive)
 
-    desc = 'Tools for working with DVR memory card'
+    if delete_events:
+        logging.debug('Got delete events argument, will proceed to delete')
+        delete_event_files(drive_path)
 
-    parser = argparse.ArgumentParser(description=desc)
-    parser.add_argument('--drive', type=str, help='Drive letter')
-    parser.add_argument('--delete_events', action='store_true', help='Delete all files in EVENT')
-    parser.add_argument('--update_db', action='store_true', help='Download DB update')
-    parser.add_argument('--dvr_model', type=str, help='Inspector DVR model')
-
-    args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
-    logging.debug('Got args %s', args)
-
-    return args
+    if update_db:
+        logging.debug('Got update db argument, will proceed to update')
+        download_and_extract_db(drive_path, dvr_model)
 
 def get_drive_path(drive_letter: str) -> Path:
     """Return drive root by its letter"""
@@ -64,20 +67,5 @@ def download_and_extract_db(drive_path: Path, dvr_model: str) -> None:
 
     os.remove('temp.zip')
 
-def main():
-    """Call main functions"""
-
-    args = parse_arguments()
-    drive_path = get_drive_path(args.drive)
-    dvr_model = args.dvr_model
-
-    if args.delete_events:
-        logging.debug('Got delete events argument, will proceed to delete')
-        delete_event_files(drive_path)
-
-    if args.update_db:
-        logging.debug('Got update db argument, will proceed to update')
-        download_and_extract_db(drive_path, dvr_model)
-
 if __name__ == "__main__":
-    main()
+    cli()
