@@ -9,6 +9,7 @@ import click
 @click.group()
 @click.option('--debug', is_flag=True, default=False)
 def cli(debug):
+    """Command-line interface of DVR Tools"""
     if debug:
         logging.basicConfig(level=logging.DEBUG)
     else:
