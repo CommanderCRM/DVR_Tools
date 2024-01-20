@@ -61,11 +61,9 @@ def download_and_extract_db(drive_path: Path, dvr_model: str) -> None:
 
     now = datetime.now()
     week_number = now.strftime("%V")
-    year_short_number = now.strftime("%y")
     logging.debug("Current week is %s", week_number)
-    logging.debug("Current short year is %s", year_short_number)
 
-    url = f"https://www.inspector-update.me/SOFT/DB/{dvr_model}DB_{week_number}{year_short_number}.zip"
+    url = f"https://www.inspector-update.me/SOFT/DB/{dvr_model}DB_{week_number}.zip"
     logging.debug("Formed %s link", url)
 
     response = requests.get(url, timeout=100)
