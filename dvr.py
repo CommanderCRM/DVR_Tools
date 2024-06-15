@@ -53,8 +53,10 @@ def delete_event_files(drive_path: Path):
             logging.info("Removing all files in %s", event_folder)
             for file in event_folder.iterdir():
                 if file.is_file():
-                    file.unlink()
-
+                    try:
+                        file.unlink()
+                    except PermissionError:
+                        logging.warning("Can't remove file %s due to permission problems", file)
 
 def download_and_extract_db(drive_path: Path, dvr_model: str) -> None:
     """Download DB update (archive number = current week number)"""
