@@ -2,14 +2,14 @@
 
 > :warning: Currently supports only Inspector DVRs
 
-* Getting drive root by its letter
-* Deleting all files inside EVENT folder
-* Downloading and unpacking most recent DB update
+- Getting drive root by its letter
+- Deleting all files inside EVENT folder
+- Downloading and unpacking most recent DB update
 
 ## Logging
 
-There are some informational messages by default. To increase logging verbosity, add ```--debug``` argument.
-Example: ```python3 dvr.py --debug```
+There are some informational messages by default. To increase logging verbosity, add `--debug` argument.
+Example: `python3 dvr.py --debug`
 
 ## Help
 

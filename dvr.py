@@ -1,10 +1,11 @@
-from pathlib import Path
-from datetime import datetime
-import zipfile
-import os
 import logging
-import requests
+import os
+import zipfile
+from datetime import datetime
+from pathlib import Path
+
 import click
+import requests
 
 
 @click.group()
@@ -56,7 +57,10 @@ def delete_event_files(drive_path: Path):
                     try:
                         file.unlink()
                     except PermissionError:
-                        logging.warning("Can't remove file %s due to permission problems", file)
+                        logging.warning(
+                            "Can't remove file %s due to permission problems", file
+                        )
+
 
 def download_and_extract_db(drive_path: Path, dvr_model: str) -> None:
     """Download DB update (archive number = current week number)"""
