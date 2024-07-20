@@ -6,6 +6,9 @@
 - Deleting all files inside EVENT folder
 - Downloading and unpacking most recent DB update
 
+## Python package
+```pip install dvr-tools==1.0.3```
+
 ## Logging
 
 There are some informational messages by default. To increase logging verbosity, add `--debug` argument.
