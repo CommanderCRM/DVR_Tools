@@ -6,7 +6,6 @@ from pathlib import Path
 
 import click
 import requests
-from setuptools import setup
 
 logging.basicConfig(
     level=logging.INFO,
@@ -22,6 +21,15 @@ class DownloadError(Exception):
 
 class ExtractionError(Exception):
     pass
+
+@click.group()
+@click.option("--debug", is_flag=True, default=False)
+def cli(debug):
+    """Command-line interface of DVR Tools"""
+    if debug:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
 
 @cli.command()
 @click.option("--drive", type=str, help="Drive letter")
@@ -102,17 +110,3 @@ def download_and_extract_db(drive_path: Path, dvr_model: str) -> None:
 
 if __name__ == "__main__":
     cli()
-
-setup(
-    name="dvr-tools",
-    version="1.0",
-    py_modules=["dvr_tools"],
-    install_requires=[
-        "click",
-        "requests",
-    ],
-    entry_points="""
-        [console_scripts]
-        dvr-tools=dvr_tools:cli
-    """,
-)
