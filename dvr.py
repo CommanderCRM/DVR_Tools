@@ -6,17 +6,22 @@ from pathlib import Path
 
 import click
 import requests
+from setuptools import setup
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
-@click.group()
-@click.option("--debug", is_flag=True, default=False)
-def cli(debug):
-    """Command-line interface of DVR Tools"""
-    if debug:
-        logging.basicConfig(level=logging.DEBUG)
-    else:
-        logging.basicConfig(level=logging.INFO)
+class InvalidDriveError(Exception):
+    pass
 
+class DownloadError(Exception):
+    pass
+
+class ExtractionError(Exception):
+    pass
 
 @cli.command()
 @click.option("--drive", type=str, help="Drive letter")
@@ -40,6 +45,8 @@ def get_drive_path(drive_letter: str) -> Path:
     """Return drive root by its letter"""
 
     logging.debug("Got drive letter %s", drive_letter)
+    if not os.path.exists(f"{drive_letter}:\\"):
+        raise InvalidDriveError(f"Invalid drive letter: {drive_letter}")
     return Path(f"{drive_letter}:\\")
 
 
@@ -65,6 +72,8 @@ def delete_event_files(drive_path: Path):
 def download_and_extract_db(drive_path: Path, dvr_model: str) -> None:
     """Download DB update (archive number = current week number)"""
 
+    temp_file = "temp.zip"
+
     now = datetime.now()
     week_number = now.strftime("%V")
     logging.debug("Current week is %s", week_number)
@@ -72,16 +81,38 @@ def download_and_extract_db(drive_path: Path, dvr_model: str) -> None:
     url = f"https://www.inspector-update.me/SOFT/DB/{dvr_model}DB_{week_number}.zip"
     logging.debug("Formed %s link", url)
 
-    response = requests.get(url, timeout=100)
+    try:
+        response = requests.get(url, timeout=100)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        raise DownloadError(f"Failed to download database update: {e}") from e
 
-    with open("temp.zip", "wb") as f:
+    with open(temp_file, "wb") as f:
         f.write(response.content)
 
-    with zipfile.ZipFile("temp.zip", "r") as zip_ref:
-        zip_ref.extractall(drive_path)
+    try:
+        with zipfile.ZipFile(temp_file, "r") as zip_ref:
+            zip_ref.extractall(drive_path)
+    except zipfile.BadZipFile as e:
+        raise ExtractionError(f"Failed to extract database update: {e}") from e
+    finally:
+        os.remove(temp_file)
 
-    os.remove("temp.zip")
-
+    os.remove(temp_file)
 
 if __name__ == "__main__":
     cli()
+
+setup(
+    name="dvr-tools",
+    version="1.0",
+    py_modules=["dvr_tools"],
+    install_requires=[
+        "click",
+        "requests",
+    ],
+    entry_points="""
+        [console_scripts]
+        dvr-tools=dvr_tools:cli
+    """,
+)
