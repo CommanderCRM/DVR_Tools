@@ -3,6 +3,7 @@ import os
 import zipfile
 from datetime import datetime
 from pathlib import Path
+import tempfile
 
 import click
 import requests
@@ -95,18 +96,17 @@ def download_and_extract_db(drive_path: Path, dvr_model: str) -> None:
     except requests.exceptions.RequestException as e:
         raise DownloadError(f"Failed to download database update: {e}") from e
 
-    with open(temp_file, "wb") as f:
-        f.write(response.content)
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+            temp_file_name = temp_file.name
+            temp_file.write(response.content)
 
     try:
-        with zipfile.ZipFile(temp_file, "r") as zip_ref:
+        with zipfile.ZipFile(temp_file_name, "r") as zip_ref:
             zip_ref.extractall(drive_path)
     except zipfile.BadZipFile as e:
         raise ExtractionError(f"Failed to extract database update: {e}") from e
     finally:
-        os.remove(temp_file)
-
-    os.remove(temp_file)
+        os.remove(temp_file_name)
 
 if __name__ == "__main__":
     cli()
