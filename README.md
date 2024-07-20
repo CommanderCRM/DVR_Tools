@@ -7,7 +7,7 @@
 - Downloading and unpacking most recent DB update
 
 ## Python package
-```pip install dvr-tools==1.0.3```
+```pip install dvr-tools```
 
 ## Logging
 
