@@ -8,12 +8,6 @@ import tempfile
 import click
 import requests
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-
 class InvalidDriveError(Exception):
     pass
 
@@ -28,9 +22,15 @@ class ExtractionError(Exception):
 def cli(debug):
     """Command-line interface of DVR Tools"""
     if debug:
-        logging.basicConfig(level=logging.DEBUG)
+        logging_level = logging.DEBUG
     else:
-        logging.basicConfig(level=logging.INFO)
+        logging_level = logging.INFO
+
+    logging.basicConfig(
+        level=logging_level,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
 
 @cli.command()
 @click.option("--drive", type=str, help="Drive letter")
