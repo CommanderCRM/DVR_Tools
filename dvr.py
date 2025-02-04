@@ -81,8 +81,6 @@ def delete_event_files(drive_path: Path):
 def download_and_extract_db(drive_path: Path, dvr_model: str) -> None:
     """Download DB update (archive number = current week number)"""
 
-    temp_file = "temp.zip"
-
     now = datetime.now()
     week_number = int(now.strftime("%V"))
     logging.debug("Current week is %s", week_number)
@@ -92,24 +90,25 @@ def download_and_extract_db(drive_path: Path, dvr_model: str) -> None:
     for attempt in range(max_attempts):
         current_week = week_number - attempt
         if current_week < 1:
-            current_week = 52 + current_week
+            current_week += 52
 
-        url = f"https://www.inspector-update.me/SOFT/DB/{dvr_model}DB_{current_week}.zip"
+        current_week_str = f"{current_week:02}"
+        url = f"https://www.inspector-update.me/SOFT/DB/{dvr_model}DB_{current_week_str}.zip"
         logging.debug("Formed %s link", url)
 
         try:
             response = requests.get(url, timeout=100)
             response.raise_for_status()
-            logging.info("Successfully downloaded database update for week %d", current_week)
+            logging.info("Successfully downloaded database update for week %s", current_week)
             break
         except requests.exceptions.RequestException as e:
-            logging.warning("Failed to download database update for week %d: %s", current_week, e)
+            logging.warning("Failed to download database update for week %s: %s", current_week, e)
             if attempt == max_attempts - 1:
                 raise DownloadError(f"Failed to download database update after {max_attempts} attempts.") from e
 
-    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-            temp_file_name = temp_file.name
-            temp_file.write(response.content)
+    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+            temp_file_name = tmp_file.name
+            tmp_file.write(response.content)
 
     try:
         with zipfile.ZipFile(temp_file_name, "r") as zip_ref:
