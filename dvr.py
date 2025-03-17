@@ -17,6 +17,9 @@ class DownloadError(Exception):
 class ExtractionError(Exception):
     pass
 
+dvr_models = ['MarlinS']
+dvr_models_joined = ', '.join(dvr_models)
+
 @click.group()
 @click.option("--debug", is_flag=True, default=False)
 def cli(debug):
@@ -33,22 +36,24 @@ def cli(debug):
     )
 
 @cli.command()
-@click.option("--drive", type=str, help="Drive letter")
+@click.option("--drive", type=str, required=True, help="Drive letter")
 @click.option("--delete_events", is_flag=True, help="Delete all files in EVENT")
-@click.option("--update_db", is_flag=True, help="Download DB update")
-@click.option("--dvr_model", type=str, help="Inspector DVR model")
-def main(drive, delete_events, update_db, dvr_model):
-    """Tools for working with DVR"""
+def delete(drive, delete_events):
+    """Delete event files"""
     drive_path = get_drive_path(drive)
-
     if delete_events:
         logging.debug("Got delete events argument, will proceed to delete")
         delete_event_files(drive_path)
 
-    if update_db:
-        logging.debug("Got update db argument, will proceed to update")
-        download_and_extract_db(drive_path, dvr_model)
 
+@cli.command()
+@click.option("--drive", type=str, required=True, help="Drive letter")
+@click.option("--dvr_model", type=str, required=True, help=f"Inspector DVR model. Supported models: {dvr_models_joined}")
+def update(drive, dvr_model):
+    """Download and extract DB"""
+    drive_path = get_drive_path(drive)
+    logging.debug("Got update db argument, will proceed to update")
+    download_and_extract_db(drive_path, dvr_model)
 
 def get_drive_path(drive_letter: str) -> Path:
     """Return drive root by its letter"""
