@@ -14,17 +14,23 @@
 There are some informational messages by default. To increase logging verbosity, add `--debug` argument.
 Example: `python3 dvr.py --debug`
 
+## Testing
+
+`pytest` tests are supported. 
+Use `python -m pytest test.py`, for example.
+
 ## Help
 
 ```text
-Usage: dvr.py main [OPTIONS]
+Usage: dvr.py [OPTIONS] COMMAND [ARGS]...
 
-  Tools for working with DVR
+  Command-line interface of DVR Tools
 
 Options:
-  --drive TEXT      Drive letter
-  --delete_events   Delete all files in EVENT
-  --update_db       Download DB update
-  --dvr_model TEXT  Inspector DVR model
-  --help            Show this message and exit.
+  --debug
+  --help   Show this message and exit.
+
+Commands:
+  delete  Delete event files
+  update  Download and extract DB
 ```
