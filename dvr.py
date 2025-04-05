@@ -8,17 +8,22 @@ import tempfile
 import click
 import requests
 
+
 class InvalidDriveError(Exception):
     pass
+
 
 class DownloadError(Exception):
     pass
 
+
 class ExtractionError(Exception):
     pass
 
-dvr_models = ['MarlinS']
-dvr_models_joined = ', '.join(dvr_models)
+
+dvr_models = ["MarlinS"]
+dvr_models_joined = ", ".join(dvr_models)
+
 
 @click.group()
 @click.option("--debug", is_flag=True, default=False)
@@ -35,6 +40,7 @@ def cli(debug):
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
+
 @cli.command()
 @click.option("--drive", type=str, required=True, help="Drive letter")
 @click.option("--delete_events", is_flag=True, help="Delete all files in EVENT")
@@ -48,12 +54,18 @@ def delete(drive, delete_events):
 
 @cli.command()
 @click.option("--drive", type=str, required=True, help="Drive letter")
-@click.option("--dvr_model", type=str, required=True, help=f"Inspector DVR model. Supported models: {dvr_models_joined}")
+@click.option(
+    "--dvr_model",
+    type=str,
+    required=True,
+    help=f"Inspector DVR model. Supported models: {dvr_models_joined}",
+)
 def update(drive, dvr_model):
     """Download and extract DB"""
     drive_path = get_drive_path(drive)
     logging.debug("Got update db argument, will proceed to update")
     download_and_extract_db(drive_path, dvr_model)
+
 
 def get_drive_path(drive_letter: str) -> Path:
     """Return drive root by its letter"""
@@ -104,16 +116,22 @@ def download_and_extract_db(drive_path: Path, dvr_model: str) -> None:
         try:
             response = requests.get(url, timeout=100)
             response.raise_for_status()
-            logging.info("Successfully downloaded database update for week %s", current_week)
+            logging.info(
+                "Successfully downloaded database update for week %s", current_week
+            )
             break
         except requests.exceptions.RequestException as e:
-            logging.warning("Failed to download database update for week %s: %s", current_week, e)
+            logging.warning(
+                "Failed to download database update for week %s: %s", current_week, e
+            )
             if attempt == max_attempts - 1:
-                raise DownloadError(f"Failed to download database update after {max_attempts} attempts.") from e
+                raise DownloadError(
+                    f"Failed to download database update after {max_attempts} attempts."
+                ) from e
 
     with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-            temp_file_name = tmp_file.name
-            tmp_file.write(response.content)
+        temp_file_name = tmp_file.name
+        tmp_file.write(response.content)
 
     try:
         with zipfile.ZipFile(temp_file_name, "r") as zip_ref:
@@ -122,6 +140,7 @@ def download_and_extract_db(drive_path: Path, dvr_model: str) -> None:
         raise ExtractionError(f"Failed to extract database update: {e}") from e
     finally:
         os.remove(temp_file_name)
+
 
 if __name__ == "__main__":
     cli()
